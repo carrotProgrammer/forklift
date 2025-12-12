@@ -1,7 +1,6 @@
 sentencepiece
 datasets==2.15
 tokenizers
-torch==1.12.1
 zstandard
 pygments
 dirtyjson
@@ -21,3 +20,4 @@ pathos
 pytmpfile
 libclang
 transformers
+lm_dataformat

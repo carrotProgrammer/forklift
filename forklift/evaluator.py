@@ -40,7 +40,16 @@ class Evaluator:
             fs = HfFileSystem()
             tok = Tokenizer.from_str(fs.open(os.path.join(self.config.hf_model_path, 'tokenizer.json'), 'r').read())
 
-        self.model = BartForConditionalGeneration.from_pretrained(self.config.hf_model_path).eval()
+        self.device = torch.device(
+    "cuda" if torch.cuda.is_available() else "cpu"
+)
+
+        self.model = BartForConditionalGeneration.from_pretrained(
+            self.config.hf_model_path
+        ).to(self.device).eval()
+        self.model = BartForConditionalGeneration.from_pretrained(
+            self.config.hf_model_path
+        ).to(self.device).eval()
         self._is_exebench_backend = self.config.is_exebench_backend
         self.asm_key = self.config.asm_key
         self.required_asms = self.get_required_asms()
@@ -75,7 +84,11 @@ class Evaluator:
                 tokenized.append(torch.tensor(tok))
                 max_len.append(False)
 
-        batch = pad_sequence(tokenized, True, self.data_processor.tokenizer.get_vocab()['<pad>'])
+        batch = pad_sequence(
+            tokenized,
+            True,
+            self.data_processor.tokenizer.get_vocab()['<pad>']
+        ).to(self.device)
 
         output = self.model.generate(batch, max_new_tokens=self.config.max_new_tokens, num_beams=self.config.beam,
                                      num_return_sequences=self.config.nbest, early_stopping=self.config.early_stopping,
